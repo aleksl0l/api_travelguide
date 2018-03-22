@@ -3,7 +3,7 @@ from flask import request, Flask, jsonify, Response
 import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy import exc, case
+from sqlalchemy import exc
 from model import db, Country, Town, Sights, Base
 
 
