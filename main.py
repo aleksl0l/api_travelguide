@@ -7,6 +7,8 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy import exc
 from model import db, Country, Town, Sights, Base
 
+app = Flask(__name__)
+
 
 def get_env_variable(name):
     try:
@@ -15,8 +17,6 @@ def get_env_variable(name):
         message = "Expected environment variable '{}' not set.".format(name)
         raise Exception(message)
 
-
-app = Flask(__name__)
 
 POSTGRES_URL = get_env_variable("POSTGRES_URL")
 POSTGRES_USER = get_env_variable("POSTGRES_USER")
@@ -41,7 +41,7 @@ Base.metadata.create_all(engine)
 
 @app.route('/api_v1.0')
 def api_root():
-    return Response()
+    return ')'
 
 
 @app.route('/api_v1.0/create_country')
@@ -116,17 +116,33 @@ def api_get_sights():
         q = q.filter(Sights.id_town == request.args['id_town'])
         for i, sight in enumerate(q):
             d[i] = {'id_town': sight.id_town,
+                    'id_sight': sight.id_sights,
                     'name': sight.name,
                     'tags': sight.tag,
                     'cost': sight.cost,
                     'coordinate': sight.coordinate,
                     'rating': sight.rating,
-                    'type': sight.type_sight
+                    'type': sight.type_sight,
+                    'photo_urls': sight.urls
                     }
         return jsonify(d)
     else:
         return jsonify({"success": False})
 
+
+@app.route('/api_v1.0/modify_sight')
+def api_modify_sight():
+    if 'id_sight' in request.args:
+        d = request.args.to_dict(flat=True)
+        if 'tag' in d:
+            d['tag'] = d['tag'].split(',')
+        d.pop('id_sight')
+        print(type(d), d)
+        session.query(Sights).filter(Sights.id_sights == request.args['id_sight']).update(d)
+        session.commit()
+        return jsonify(d)
+    else:
+        return jsonify({"success": False})
 
 if __name__ == '__main__':
     if len(sys.argv) == 2:

@@ -5,6 +5,7 @@ from sqlalchemy.ext.declarative import declarative_base
 import re
 import sqlalchemy.types as types
 
+
 class Point(types.UserDefinedType):
     def __init__(self, x=0, y=0):
         self.x = x
@@ -28,6 +29,7 @@ class Point(types.UserDefinedType):
                 long = m.group(2)
             return {'lat': lat, 'long': long}
         return process
+
 
 db = SQLAlchemy()
 
@@ -75,15 +77,5 @@ class Sights(Base, db.Model):
     coordinate = Column(Point)
     rating = Column(REAL)
     type_sight = Column(Text)
-
-
+    urls = Column(ARRAY(Text))
     id_town_rel = relationship('Town', foreign_keys=[id_town])
-
-# class Setsandwords(Base, db.Model):
-#     __tablename__ = 'setsandwords'
-#
-#     set_id = Column(Integer, ForeignKey('sets.set_id'), primary_key=True)
-#     word_id = Column(Integer, ForeignKey('words.word_id'), primary_key=True)
-#
-#     set_id_rel = relationship('Sets', foreign_keys=[set_id])
-#     word_id_rel = relationship('Words', foreign_keys=[word_id])
