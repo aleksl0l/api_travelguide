@@ -1,12 +1,9 @@
 #!/usr/bin/env python3
 from flask import request, Flask, jsonify, Response
 import os
-from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import create_engine
-from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import exc, case
-from sqlalchemy.sql import select
 from model import db, Country, Town, Sights, Base
 
 

@@ -1,8 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
-import datetime
 from sqlalchemy import Column, Integer, String, REAL, Text, ForeignKey, Sequence, ARRAY
 from sqlalchemy.orm import relationship
-from geoalchemy2 import Geometry
 from sqlalchemy.ext.declarative import declarative_base
 import re
 import sqlalchemy.types as types
