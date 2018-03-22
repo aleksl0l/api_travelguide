@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 from flask import request, Flask, jsonify, Response
 import os
 from flask_sqlalchemy import SQLAlchemy
