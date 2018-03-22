@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from flask import request, Flask, jsonify, Response
 import os
+import sys
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import exc
@@ -128,4 +129,8 @@ def api_get_sights():
 
 
 if __name__ == '__main__':
-    app.run()
+    if len(sys.argv) == 2:
+        host = sys.argv[1]
+    else:
+        host = '127.0.0.1'
+    app.run(host=host)
