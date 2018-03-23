@@ -1,4 +1,3 @@
-from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Column, Integer, String, REAL, Text, ForeignKey, Sequence, ARRAY
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
@@ -12,7 +11,7 @@ class Point(types.UserDefinedType):
         self.y = y
 
     def get_col_spec(self, **kw):
-        return 'POINT(%s,%s)' % (self.x, self.y)
+        return '(%s,%s)' % (self.x, self.y)
 
     def bind_processor(self, dialect):
         def process(value):
@@ -31,12 +30,10 @@ class Point(types.UserDefinedType):
         return process
 
 
-db = SQLAlchemy()
-
 Base = declarative_base()
 
 
-class Country(Base, db.Model):
+class Country(Base):
     __tablename__ = 'countries'
     id_country_seq = Sequence('countries_id_country_seq', metadata=Base.metadata)
 
@@ -46,7 +43,7 @@ class Country(Base, db.Model):
     name = Column(String(40), nullable=False)
 
 
-class Town(Base, db.Model):
+class Town(Base):
     __tablename__ = 'towns'
 
     id_town_seq = Sequence('towns_id_town_seq', metadata=Base.metadata)
@@ -62,7 +59,7 @@ class Town(Base, db.Model):
     id_country_rel = relationship('Country', foreign_keys=[id_country])
 
 
-class Sights(Base, db.Model):
+class Sights(Base):
     __tablename__ = 'sights'
 
     id_sights_seq = Sequence('sights_id_sights_seq', metadata=Base.metadata)

@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
-from flask import request, Flask, jsonify, Response
+
 import os
+import logging
 import sys
-from sqlalchemy import create_engine
+from flask import request, Flask, jsonify
+from sqlalchemy import create_engine, exc
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy import exc
-from model import db, Country, Town, Sights, Base
+from model import Country, Town, Sights, Base
 
 app = Flask(__name__)
 
@@ -31,20 +32,20 @@ DB_URL = 'postgresql://{user}:{pw}@{url}/{db}'.format(user=POSTGRES_USER,
 app.config['SQLALCHEMY_DATABASE_URI'] = DB_URL
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # silence the deprecation warning
 app.config['JSON_AS_ASCII'] = False
+
 engine = create_engine(DB_URL)
-db.init_app(app)
 
 Session = sessionmaker(engine)
 session = Session()
 Base.metadata.create_all(engine)
 
 
-@app.route('/api_v1.0')
+@app.route('/api_v1.0', methods=['GET', 'POST'])
 def api_root():
     return ')'
 
 
-@app.route('/api_v1.0/create_country')
+@app.route('/api_v1.0/create_country', methods=['GET', 'POST'])
 def api_create_country():
     print(request.args)
     if 'name' in request.args:
@@ -58,7 +59,7 @@ def api_create_country():
     return jsonify({"success": True})
 
 
-@app.route('/api_v1.0/get_countries')
+@app.route('/api_v1.0/get_countries', methods=['GET', 'POST'])
 def api_get_countries():
     d = {}
     q = session.query(Country)
@@ -69,7 +70,7 @@ def api_get_countries():
     return jsonify(d)
 
 
-@app.route('/api_v1.0/create_town')
+@app.route('/api_v1.0/create_town', methods=['GET', 'POST'])
 def api_create_town():
     print(request.args)
     if 'name' in request.args:
@@ -83,7 +84,7 @@ def api_create_town():
     return jsonify({"success": True})
 
 
-@app.route('/api_v1.0/get_towns')
+@app.route('/api_v1.0/get_towns', methods=['GET', 'POST'])
 def api_get_towns():
     d = {}
     q = session.query(Town)
@@ -94,7 +95,7 @@ def api_get_towns():
     return jsonify(d)
 
 
-@app.route('/api_v1.0/create_sight')
+@app.route('/api_v1.0/create_sight', methods=['GET', 'POST'])
 def api_create_sights():
     print(request.args)
     if 'id_town' in request.args and 'name' in request.args:
@@ -108,7 +109,7 @@ def api_create_sights():
         return jsonify({"success": True})
 
 
-@app.route('/api_v1.0/get_sights')
+@app.route('/api_v1.0/get_sights', methods=['GET', 'POST'])
 def api_get_sights():
     d = {}
     q = session.query(Sights)
@@ -130,7 +131,7 @@ def api_get_sights():
         return jsonify({"success": False})
 
 
-@app.route('/api_v1.0/modify_sight')
+@app.route('/api_v1.0/modify_sight', methods=['GET', 'POST'])
 def api_modify_sight():
     if 'id_sight' in request.args:
         d = request.args.to_dict(flat=True)
@@ -145,6 +146,12 @@ def api_modify_sight():
         return jsonify({"success": False})
 
 if __name__ == '__main__':
+    hdlr = logging.FileHandler('log/api_sights.log')
+    log = logging.getLogger('werkzeug')
+    log.setLevel(logging.INFO)
+    log.addHandler(hdlr)
+    log.addHandler(logging.StreamHandler(sys.stdout))
+
     if len(sys.argv) == 2:
         host = sys.argv[1]
     else:
