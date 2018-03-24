@@ -76,3 +76,44 @@ class Sights(Base):
     type_sight = Column(Text)
     urls = Column(ARRAY(Text))
     id_town_rel = relationship('Town', foreign_keys=[id_town])
+
+
+class Roles(Base):
+    __tablename__ = 'roles'
+
+    id_role_seq = Sequence('roles_id_role_seq', metadata=Base.metadata)
+
+    id_role = Column(Integer,
+                     server_default=id_role_seq.next_value(),
+                     primary_key=True)
+    name = Column(String(10))
+
+
+class Users(Base):
+    __tablename__ = 'users'
+
+    id_user_seq = Sequence('users_id_user_seq', metadata=Base.metadata)
+
+    id_user = Column(Integer,
+                     server_default=id_user_seq.next_value(),
+                     primary_key=True)
+    public_id = Column(String(36))
+    name = Column(String(50), unique=True)
+    password = Column(String(100))
+    id_role = Column(Integer, ForeignKey('roles.id_role'))
+    id_role_rel = relationship('Roles', foreign_keys=[id_role])
+
+
+class Likes(Base):
+    __tablename__ = 'likes'
+
+    id_like_seq = Sequence('likes_id_like_seq', metadata=Base.metadata)
+
+    id_like = Column(Integer,
+                     server_default=id_like_seq.next_value(),
+                     primary_key=True)
+    id_user = Column(Integer, ForeignKey('users.id_user'))
+    id_sights = Column(Integer, ForeignKey('sights.id_sights'))
+
+    id_user_rel = relationship('Users', foreign_keys=[id_user])
+    id_sights_rel = relationship('Sights', foreign_keys=[id_sights])
