@@ -113,7 +113,8 @@ class Likes(Base):
                      server_default=id_like_seq.next_value(),
                      primary_key=True)
     id_user = Column(Integer, ForeignKey('users.id_user'))
-    id_sights = Column(Integer, ForeignKey('sights.id_sights'))
+    id_sight = Column(Integer, ForeignKey('sights.id_sights'))
+    value = Column(Integer, nullable=False)
 
     id_user_rel = relationship('Users', foreign_keys=[id_user])
-    id_sights_rel = relationship('Sights', foreign_keys=[id_sights])
+    id_sights_rel = relationship('Sights', foreign_keys=[id_sight])

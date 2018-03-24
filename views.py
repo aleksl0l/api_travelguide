@@ -1,7 +1,30 @@
 from main import app, session
 from flask import request, jsonify
-from model import Country, Town, Sights
+from model import Country, Town, Sights, Users, Roles, Likes
 from sqlalchemy import exc
+import jwt
+import datetime
+from functools import wraps
+import uuid
+from werkzeug.security import generate_password_hash, check_password_hash
+
+
+def token_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        token = None
+
+        if 'token' in request.args:
+            token = request.args['token']
+        if not token:
+            return jsonify({'message': 'Token is missing!'}), 401
+
+        data = jwt.decode(token, app.config['SECRET_KEY'])
+        current_user = session.query(Users).filter_by(public_id=data['public_id']).first()
+
+        return f(current_user, *args, **kwargs)
+
+    return decorated
 
 
 @app.route('/api_v1.0', methods=['GET', 'POST'])
@@ -108,3 +131,65 @@ def api_modify_sight():
         return jsonify(d)
     else:
         return jsonify({"success": False})
+
+
+@app.route('/api_v1.0/create_user', methods=['GET', 'POST'])
+def api_create_user():
+    data = request.args.to_dict(flat=True)
+    print(data)
+    hashed_password = generate_password_hash(data['password'], method='sha256')
+    # try:
+    new_user = Users(public_id=str(uuid.uuid4()),
+                     name=data['name'],
+                     password=hashed_password,
+                     id_role=3)
+    session.add(new_user)
+    session.commit()
+    # except Exception as e:
+    #     session.rollback()
+    #     return jsonify({'error': 'unexpected error'})
+    return jsonify({'success': True})
+
+
+@app.route('/api_v1.0/get_user', methods=['GET', 'POST'])
+def api_get_user():
+    d = {}
+    q = session.query(Users)
+
+    for i, user in enumerate(q):
+        d[i] = {'public_id': user.public_id,
+                'name': user.name,
+                'id_role': user.id_role,
+                }
+    return jsonify(d)
+
+
+@app.route('/api_v1.0/login', methods=['GET', 'POST'])
+def api_login_user():
+    name = request.args['name']
+    passw = request.args['password']
+    user = session.query(Users).filter_by(name=name).first()
+    print(name, passw)
+    if not user:
+        return jsonify({'success': False})
+
+    if check_password_hash(user.password, passw):
+        token = jwt.encode({'public_id': user.public_id,
+                            'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=30)},
+                           app.config['SECRET_KEY'])
+        return jsonify({'token': token.decode('UTF-8')})
+
+    return jsonify({'success': False})
+
+
+@app.route('/api_v1.0/add_like', methods=['GET', 'POST'])
+@token_required
+def api_add_like(current_user):
+    id_sight = request.args['id_sight']
+    new_like = Likes(id_user=current_user.id_user, id_sight=id_sight, value=1)
+    session.add(new_like)
+    session.commit()
+    return jsonify({'success': True})
+
+
+
