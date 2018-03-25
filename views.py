@@ -18,10 +18,11 @@ def token_required(f):
             token = request.args['token']
         if not token:
             return jsonify({'message': 'Token is missing!'}), 401
-
-        data = jwt.decode(token, app.config['SECRET_KEY'])
-        current_user = session.query(Users).filter_by(public_id=data['public_id']).first()
-
+        try:
+            data = jwt.decode(token, app.config['SECRET_KEY'])
+            current_user = session.query(Users).filter_by(public_id=data['public_id']).first()
+        except:
+            return jsonify({'message': 'Token is invalid!'}), 401
         return f(current_user, *args, **kwargs)
 
     return decorated
@@ -136,19 +137,18 @@ def api_modify_sight():
 @app.route('/api_v1.0/create_user', methods=['GET', 'POST'])
 def api_create_user():
     data = request.args.to_dict(flat=True)
-    print(data)
     hashed_password = generate_password_hash(data['password'], method='sha256')
-    # try:
-    new_user = Users(public_id=str(uuid.uuid4()),
-                     name=data['name'],
-                     password=hashed_password,
-                     id_role=3)
-    session.add(new_user)
-    session.commit()
-    # except Exception as e:
-    #     session.rollback()
-    #     return jsonify({'error': 'unexpected error'})
-    return jsonify({'success': True})
+    try:
+        new_user = Users(public_id=str(uuid.uuid4()),
+                         name=data['name'],
+                         password=hashed_password,
+                         id_role=3)
+        session.add(new_user)
+        session.commit()
+        return jsonify({'success': True})
+    except Exception as e:
+        session.rollback()
+        return jsonify({'error': 'unexpected error'})
 
 
 @app.route('/api_v1.0/get_user', methods=['GET', 'POST'])
@@ -175,7 +175,7 @@ def api_login_user():
 
     if check_password_hash(user.password, passw):
         token = jwt.encode({'public_id': user.public_id,
-                            'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=30)},
+                            'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=10)},
                            app.config['SECRET_KEY'])
         return jsonify({'token': token.decode('UTF-8')})
 
@@ -185,11 +185,36 @@ def api_login_user():
 @app.route('/api_v1.0/add_like', methods=['GET', 'POST'])
 @token_required
 def api_add_like(current_user):
-    id_sight = request.args['id_sight']
-    new_like = Likes(id_user=current_user.id_user, id_sight=id_sight, value=1)
-    session.add(new_like)
-    session.commit()
-    return jsonify({'success': True})
+    try:
+        id_sight = request.args['id_sight']
+        new_like = Likes(id_user=current_user.id_user, id_sight=id_sight, value=1)
+        session.add(new_like)
+        session.commit()
+        return jsonify({'success': True})
+    except exc.IntegrityError:
+        session.rollback()
+        return jsonify({'error': 'Dublicate like'})
+    except Exception as e:
+        session.rollback()
+        return jsonify({'message': e.args[0]})
+
+
+@app.route('/api_v1.0/del_like', methods=['GET', 'POST'])
+@token_required
+def api_del_like(current_user):
+    try:
+        id_sight = request.args['id_sight']
+        del_like = session.query(Likes).filter(
+                                               Likes.id_user == current_user.id_user,
+                                               Likes.id_sight == id_sight
+                                            ).first()
+        session.delete(del_like)
+        session.commit()
+        return jsonify({'success': True})
+    except Exception as e:
+        session.rollback()
+        return jsonify({'message': e.args[0]})
+
 
 
 

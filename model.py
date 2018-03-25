@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, REAL, Text, ForeignKey, Sequence, ARRAY
+from sqlalchemy import Column, Integer, String, REAL, Text, ForeignKey, Sequence, ARRAY, UniqueConstraint
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 import re
@@ -118,3 +118,4 @@ class Likes(Base):
 
     id_user_rel = relationship('Users', foreign_keys=[id_user])
     id_sights_rel = relationship('Sights', foreign_keys=[id_sight])
+    UniqueConstraint('id_user', 'id_sight')
