@@ -17,12 +17,12 @@ def token_required(f):
         if 'token' in request.args:
             token = request.args['token']
         if not token:
-            return jsonify({'message': 'Token is missing!'}), 401
+            return jsonify({'message': 'Token is missing!', 'data': None, 'status': 'error'}), 401
         try:
             data = jwt.decode(token, app.config['SECRET_KEY'])
             current_user = session.query(Users).filter_by(public_id=data['public_id']).first()
         except:
-            return jsonify({'message': 'Token is invalid!'}), 401
+            return jsonify({'message': 'Token is invalid!', 'data': None, 'status': 'error'}), 401
         return f(current_user, *args, **kwargs)
 
     return decorated
@@ -43,8 +43,8 @@ def api_create_country():
             session.commit()
         except exc.IntegrityError:
             session.rollback()
-            return jsonify({"success": False})
-    return jsonify({"success": True})
+            return jsonify({'message': 'Duplicate value', 'data': None, 'status': 'error'})
+    return jsonify({'message': None, 'data': None, 'status': 'success'})
 
 
 @app.route('/api_v1.0/get_countries', methods=['GET', 'POST'])
@@ -55,7 +55,7 @@ def api_get_countries():
         q = q.filter(Country.id_country == request.args['id_country'])
     for i, country in enumerate(q):
         d[i] = {'id_town': country.id_country, 'name': country.name}
-    return jsonify(d)
+    return jsonify({'message': None, 'data': d, 'status': 'success'})
 
 
 @app.route('/api_v1.0/create_town', methods=['GET', 'POST'])
@@ -68,8 +68,8 @@ def api_create_town():
             session.commit()
         except exc.IntegrityError:
             session.rollback()
-            return jsonify({"success": False})
-    return jsonify({"success": True})
+            return jsonify({'message': 'Duplicate value', 'data': None, 'status': 'error'})
+    return jsonify({'message': None, 'data': None, 'status': 'success'})
 
 
 @app.route('/api_v1.0/get_towns', methods=['GET', 'POST'])
@@ -80,7 +80,7 @@ def api_get_towns():
         q.filter(Town.id_country == request.args['id_country'])
     for i, town in enumerate(q):
         d[i] = {'id_town': town.id_town, 'name': town.name, 'description': town.description}
-    return jsonify(d)
+    return jsonify({'message': None, 'data': d, 'status': 'success'})
 
 
 @app.route('/api_v1.0/create_sight', methods=['GET', 'POST'])
@@ -93,8 +93,8 @@ def api_create_sights():
             session.commit()
         except exc.IntegrityError:
             session.rollback()
-            return jsonify({"success": False})
-        return jsonify({"success": True})
+            return jsonify({'message': 'Duplicate value', 'data': None, 'status': 'error'})
+    return jsonify({'message': None, 'data': None, 'status': 'success'})
 
 
 @app.route('/api_v1.0/get_sights', methods=['GET', 'POST'])
@@ -114,9 +114,9 @@ def api_get_sights():
                     'type': sight.type_sight,
                     'photo_urls': sight.urls
                     }
-        return jsonify(d)
+        return jsonify({'message': None, 'data': d, 'status': 'success'})
     else:
-        return jsonify({"success": False})
+        return jsonify({'message': 'Field id_town is required', 'data': None, 'status': 'error'})
 
 
 @app.route('/api_v1.0/modify_sight', methods=['GET', 'POST'])
@@ -129,9 +129,9 @@ def api_modify_sight():
         print(type(d), d)
         session.query(Sights).filter(Sights.id_sights == request.args['id_sight']).update(d)
         session.commit()
-        return jsonify(d)
+        return jsonify({'message': None, 'data': d, 'status': 'success'})
     else:
-        return jsonify({"success": False})
+        return jsonify({'message': 'Field id_sight is required', 'data': None, 'status': 'error'})
 
 
 @app.route('/api_v1.0/create_user', methods=['GET', 'POST'])
@@ -145,10 +145,10 @@ def api_create_user():
                          id_role=3)
         session.add(new_user)
         session.commit()
-        return jsonify({'success': True})
+        return jsonify({'message': None, 'data': None, 'status': 'success'})
     except Exception as e:
         session.rollback()
-        return jsonify({'error': 'unexpected error'})
+        return jsonify({'message': 'Unexpected error', 'data': None, 'status': 'error'})
 
 
 @app.route('/api_v1.0/get_user', methods=['GET', 'POST'])
@@ -161,7 +161,7 @@ def api_get_user():
                 'name': user.name,
                 'id_role': user.id_role,
                 }
-    return jsonify(d)
+    return jsonify({'message': None, 'data': d, 'status': 'success'})
 
 
 @app.route('/api_v1.0/login', methods=['GET', 'POST'])
@@ -171,15 +171,15 @@ def api_login_user():
     user = session.query(Users).filter_by(name=name).first()
     print(name, passw)
     if not user:
-        return jsonify({'success': False})
+        return jsonify({'message': 'Password or user is invalid', 'data': None, 'status': 'error'})
 
     if check_password_hash(user.password, passw):
         token = jwt.encode({'public_id': user.public_id,
                             'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=10)},
                            app.config['SECRET_KEY'])
-        return jsonify({'token': token.decode('UTF-8')})
+        return jsonify({'message': None, 'data': {'token': token.decode('UTF-8')}, 'status': 'success'})
 
-    return jsonify({'success': False})
+    return jsonify({'message': 'Unexpected error', 'data': None, 'status': 'error'})
 
 
 @app.route('/api_v1.0/add_like', methods=['GET', 'POST'])
@@ -190,13 +190,13 @@ def api_add_like(current_user):
         new_like = Likes(id_user=current_user.id_user, id_sight=id_sight, value=1)
         session.add(new_like)
         session.commit()
-        return jsonify({'success': True})
+        return jsonify({'message': None, 'data': None, 'status': 'success'})
     except exc.IntegrityError:
         session.rollback()
-        return jsonify({'error': 'Dublicate like'})
+        return jsonify({'message': 'Duplicate', 'data': None, 'status': 'error'})
     except Exception as e:
         session.rollback()
-        return jsonify({'message': e.args[0]})
+        return jsonify({'message': 'Unexpected error', 'data': None, 'status': 'error'})
 
 
 @app.route('/api_v1.0/del_like', methods=['GET', 'POST'])
@@ -210,10 +210,10 @@ def api_del_like(current_user):
                                             ).first()
         session.delete(del_like)
         session.commit()
-        return jsonify({'success': True})
+        return jsonify({'message': None, 'data': None, 'status': 'success'})
     except Exception as e:
         session.rollback()
-        return jsonify({'message': e.args[0]})
+        return jsonify({'message': 'Unexpected error', 'data': None, 'status': 'error'})
 
 
 
