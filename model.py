@@ -118,4 +118,4 @@ class Likes(Base):
 
     id_user_rel = relationship('Users', foreign_keys=[id_user])
     id_sights_rel = relationship('Sights', foreign_keys=[id_sight])
-    UniqueConstraint('id_user', 'id_sight')
+    __table_args__ = (UniqueConstraint('id_user', 'id_sight'),)

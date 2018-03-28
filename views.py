@@ -28,6 +28,27 @@ def token_required(f):
     return decorated
 
 
+def admin_token_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        token = None
+
+        if 'token' in request.args:
+            token = request.args['token']
+        if not token:
+            return jsonify({'message': 'Token is missing!', 'data': None, 'status': 'error'}), 401
+        try:
+            data = jwt.decode(token, app.config['SECRET_KEY'])
+            current_user = session.query(Users).filter_by(public_id=data['public_id']).first()
+            if current_user.id_role not in [1, 2]:
+                raise Exception('Action is not required')
+        except Exception as e:
+            return jsonify({'message': e.args[0], 'data': None, 'status': 'error'}), 401
+        return f(current_user, *args, **kwargs)
+
+    return decorated
+
+
 @app.route('/api_v1.0', methods=['GET', 'POST'])
 def api_root():
     return ')'
@@ -85,10 +106,13 @@ def api_get_towns():
 
 @app.route('/api_v1.0/create_sight', methods=['GET', 'POST'])
 def api_create_sights():
-    print(request.args)
+    print(request.args.to_dict(flat=True))
     if 'id_town' in request.args and 'name' in request.args:
         try:
-            new_sight = Sights(id_town=request.args['id_town'], name=request.args['name'])
+            args = request.args.to_dict(flat=True)
+            args['urls'] = args['urls'].split(',')
+            print(args['urls'])
+            new_sight = Sights(**args)
             session.add(new_sight)
             session.commit()
         except exc.IntegrityError:
@@ -152,16 +176,18 @@ def api_create_user():
 
 
 @app.route('/api_v1.0/get_user', methods=['GET', 'POST'])
-def api_get_user():
+def api_get_user(current_user):
     d = {}
     q = session.query(Users)
-
-    for i, user in enumerate(q):
-        d[i] = {'public_id': user.public_id,
-                'name': user.name,
-                'id_role': user.id_role,
-                }
-    return jsonify({'message': None, 'data': d, 'status': 'success'})
+    try:
+        for i, user in enumerate(q):
+            d[i] = {'public_id': user.public_id,
+                    'name': user.name,
+                    'id_role': user.id_role,
+                    }
+        return jsonify({'message': None, 'data': d, 'status': 'success'})
+    except Exception as e:
+        return jsonify({'message': e.args, 'data': d, 'status': 'success'})
 
 
 @app.route('/api_v1.0/login', methods=['GET', 'POST'])
