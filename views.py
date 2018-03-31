@@ -110,14 +110,17 @@ def api_create_sights():
     if 'id_town' in request.args and 'name' in request.args:
         try:
             args = request.args.to_dict(flat=True)
-            args['urls'] = args['urls'].split(',')
-            print(args['urls'])
+            try:
+                args['urls'] = args['urls'].split(',')
+                print(args['urls'])
+            except KeyError as e:
+                print(e)
             new_sight = Sights(**args)
             session.add(new_sight)
             session.commit()
-        except exc.IntegrityError:
+        except exc.IntegrityError as e:
             session.rollback()
-            return jsonify({'message': 'Duplicate value', 'data': None, 'status': 'error'})
+            return jsonify({'message': 'Duplicate value' + e.args[0], 'data': None, 'status': 'error'})
     return jsonify({'message': None, 'data': None, 'status': 'success'})
 
 
@@ -176,7 +179,7 @@ def api_create_user():
 
 
 @app.route('/api_v1.0/get_user', methods=['GET', 'POST'])
-def api_get_user(current_user):
+def api_get_user():
     d = {}
     q = session.query(Users)
     try:
