@@ -1,8 +1,9 @@
 from sqlalchemy import Column, Integer, String, REAL, Text, ForeignKey, Sequence, ARRAY, UniqueConstraint
 from sqlalchemy.orm import relationship
-from sqlalchemy.ext.declarative import declarative_base
+# from sqlalchemy.ext.declarative import declarative_base
 import re
 import sqlalchemy.types as types
+from app import db
 
 
 class Point(types.UserDefinedType):
@@ -30,12 +31,12 @@ class Point(types.UserDefinedType):
         return process
 
 
-Base = declarative_base()
+# Base = declarative_base()
 
 
-class Country(Base):
+class Country(db.Model):
     __tablename__ = 'countries'
-    id_country_seq = Sequence('countries_id_country_seq', metadata=Base.metadata)
+    id_country_seq = Sequence('countries_id_country_seq', metadata=db.metadata)
 
     id_country = Column(Integer, id_country_seq,
                         server_default=id_country_seq.next_value(),
@@ -43,10 +44,10 @@ class Country(Base):
     name = Column(String(40), nullable=False)
 
 
-class Town(Base):
+class Town(db.Model):
     __tablename__ = 'towns'
 
-    id_town_seq = Sequence('towns_id_town_seq', metadata=Base.metadata)
+    id_town_seq = Sequence('towns_id_town_seq', metadata=db.metadata)
 
     id_town = Column(Integer,
                      server_default=id_town_seq.next_value(),
@@ -59,10 +60,10 @@ class Town(Base):
     id_country_rel = relationship('Country', foreign_keys=[id_country])
 
 
-class Sights(Base):
+class Sights(db.Model):
     __tablename__ = 'sights'
 
-    id_sights_seq = Sequence('sights_id_sights_seq', metadata=Base.metadata)
+    id_sights_seq = Sequence('sights_id_sights_seq', metadata=db.metadata)
 
     id_sights = Column(Integer,
                        server_default=id_sights_seq.next_value(),
@@ -78,10 +79,10 @@ class Sights(Base):
     id_town_rel = relationship('Town', foreign_keys=[id_town])
 
 
-class Roles(Base):
+class Roles(db.Model):
     __tablename__ = 'roles'
 
-    id_role_seq = Sequence('roles_id_role_seq', metadata=Base.metadata)
+    id_role_seq = Sequence('roles_id_role_seq', metadata=db.metadata)
 
     id_role = Column(Integer,
                      server_default=id_role_seq.next_value(),
@@ -89,10 +90,10 @@ class Roles(Base):
     name = Column(String(10))
 
 
-class Users(Base):
+class Users(db.Model):
     __tablename__ = 'users'
 
-    id_user_seq = Sequence('users_id_user_seq', metadata=Base.metadata)
+    id_user_seq = Sequence('users_id_user_seq', metadata=db.metadata)
 
     id_user = Column(Integer,
                      server_default=id_user_seq.next_value(),
@@ -104,10 +105,10 @@ class Users(Base):
     id_role_rel = relationship('Roles', foreign_keys=[id_role])
 
 
-class Likes(Base):
+class Likes(db.Model):
     __tablename__ = 'likes'
 
-    id_like_seq = Sequence('likes_id_like_seq', metadata=Base.metadata)
+    id_like_seq = Sequence('likes_id_like_seq', metadata=db.metadata)
 
     id_like = Column(Integer,
                      server_default=id_like_seq.next_value(),

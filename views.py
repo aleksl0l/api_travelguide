@@ -1,4 +1,4 @@
-from main import app, session
+from app import app, session
 from flask import request, jsonify
 from model import Country, Town, Sights, Users, Roles, Likes
 from sqlalchemy import exc
@@ -6,6 +6,8 @@ import jwt
 import datetime
 from functools import wraps
 import uuid
+import os
+from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
 
 
@@ -52,6 +54,18 @@ def admin_token_required(f):
 @app.route('/api_v1.0', methods=['GET', 'POST'])
 def api_root():
     return ')'
+
+
+@app.route("/upload_img", methods=['POST', 'PUT'])
+def upload_img():
+    if 'file' in request.files and 'id_sight' in request.args:
+        file = request.files['file']
+        print(request.files)
+        filename = secure_filename(file.filename)
+        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        return "Success"
+    else:
+        return "error"
 
 
 @app.route('/api_v1.0/create_country', methods=['GET', 'POST'])
@@ -160,6 +174,18 @@ def api_modify_sight():
     else:
         return jsonify({'message': 'Field id_sight is required', 'data': None, 'status': 'error'})
 
+
+@app.route('/api_v1.0/add_img_to_sight', methods=['GET', 'POST'])
+def api_add_img_to_sight():
+    if 'id_sight' in request.args:
+        imgs = request.args['imgs'].split(',')
+        q = session.query(Sights).filter(Sights.id_sights == request.args['id_sight']).first()
+        imgs += q.urls
+        session.query(Sights).filter(Sights.id_sights == request.args['id_sight']).update({'urls': imgs})
+        session.commit()
+        return jsonify({'message': None, 'data': None, 'status': 'success'})
+    else:
+        return jsonify({'message': 'Field id_sight is required', 'data': None, 'status': 'error'})
 
 @app.route('/api_v1.0/create_user', methods=['GET', 'POST'])
 def api_create_user():
