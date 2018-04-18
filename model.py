@@ -3,7 +3,7 @@ from sqlalchemy.orm import relationship
 # from sqlalchemy.ext.declarative import declarative_base
 import re
 import sqlalchemy.types as types
-from app import db
+# from app import db
 
 
 class Point(types.UserDefinedType):

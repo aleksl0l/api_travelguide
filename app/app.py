@@ -3,9 +3,6 @@ import logging
 import sys
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-# from sqlalchemy import create_engine
-# from sqlalchemy.orm import sessionmaker
-# from model import Base
 from gevent.monkey import patch_all
 from psycogreen.gevent import patch_psycopg
 
@@ -15,6 +12,12 @@ app.config.from_pyfile('config.py')
 db = SQLAlchemy(app)
 db.engine.pool._use_threadlocal = True
 session = db.session
+
+from app.likes.views import likes
+from app.countries.views import countries
+from app.towns.views import towns
+from app.sights.views import sights
+from app.users.views import users
 # patch_all()
 # patch_psycopg()
 
@@ -51,7 +54,12 @@ session = db.session
 
 # Base.metadata.create_all(engine)
 
-from views import *
+
+app.register_blueprint(likes)
+app.register_blueprint(countries)
+app.register_blueprint(towns)
+app.register_blueprint(sights)
+app.register_blueprint(users)
 
 if __name__ == '__main__':
     hdlr = logging.FileHandler('log/api_sights.log')
