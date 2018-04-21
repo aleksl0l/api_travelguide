@@ -32,6 +32,7 @@ def api_get_sights():
     q = session.query(Sights)
     if 'id_town' in request.args:
         q = q.filter(Sights.id_town == request.args['id_town'])
+        print(type(q[0]))
         for i, sight in enumerate(q):
             d[i] = {'id_town': sight.id_town,
                     'id_sight': sight.id_sights,
@@ -41,7 +42,11 @@ def api_get_sights():
                     'coordinate': sight.coordinate,
                     'rating': sight.rating,
                     'type': sight.type_sight,
-                    'photo_urls': sight.urls
+                    'photo_urls': sight.urls,
+                    'web_site': sight.web_site,
+                    'description': sight.description,
+                    'history': sight.history,
+                    'phoneNumber': sight.phonenumber
                     }
         return jsonify({'message': None, 'data': d, 'status': 'success'})
     else:

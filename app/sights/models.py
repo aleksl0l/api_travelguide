@@ -46,4 +46,8 @@ class Sights(db.Model):
     rating = Column(REAL)
     type_sight = Column(Text)
     urls = Column(ARRAY(Text))
+    web_site = Column(Text)
+    description = Column(Text)
+    history = Column(Text)
+    phonenumber = Column(String(20))
     id_town_rel = relationship('Town', foreign_keys=[id_town])
