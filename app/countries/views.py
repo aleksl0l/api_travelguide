@@ -1,12 +1,12 @@
 from flask import Blueprint, request, jsonify
 from app.countries.models import Country
-from app.app import session, app
+from app.app import session
 from sqlalchemy import exc
 
 countries = Blueprint('countries', __name__)
 
 
-@app.route('/api_v1.0/create_country', methods=['GET', 'POST'])
+@countries.route('/api_v1.0/create_country', methods=['GET', 'POST'])
 def api_create_country():
     print(request.args)
     if 'name' in request.args:
@@ -20,7 +20,7 @@ def api_create_country():
     return jsonify({'message': None, 'data': None, 'status': 'success'})
 
 
-@app.route('/api_v1.0/get_countries', methods=['GET', 'POST'])
+@countries.route('/api_v1.0/get_countries', methods=['GET', 'POST'])
 def api_get_countries():
     d = {}
     q = session.query(Country)

@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
 from app.users.models import Users
-from app.app import session, app
+from app.app import session
+from app.config import SECRET_KEY
 from werkzeug.security import generate_password_hash, check_password_hash
 import uuid
 import jwt
@@ -54,7 +55,7 @@ def api_login_user():
     if check_password_hash(user.password, passw):
         token = jwt.encode({'public_id': user.public_id,
                             'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=10)},
-                           app.config['SECRET_KEY'])
+                           SECRET_KEY)
         return jsonify({'message': None, 'data': {'token': token.decode('UTF-8')}, 'status': 'success'})
 
     return jsonify({'message': 'Unexpected error', 'data': None, 'status': 'error'})
