@@ -12,5 +12,6 @@ class Town(db.Model):
                      primary_key=True)
     name = Column(String(40), nullable=False)
     description = Column(Text)
+    url_photo = Column(Text)
     id_country = Column(Integer, ForeignKey('countries.id_country'))
     # id_country_rel = relationship('Country', foreign_keys=[id_country])

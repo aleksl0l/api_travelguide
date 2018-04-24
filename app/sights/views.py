@@ -31,8 +31,7 @@ def api_get_sights():
     d = {}
     q = session.query(Sights)
     if 'id_town' in request.args:
-        q = q.filter(Sights.id_town == request.args['id_town'])
-        print(type(q[0]))
+        q = q.filter(Sights.id_town == request.args['id_town']).all()
         for i, sight in enumerate(q):
             d[i] = {'id_town': sight.id_town,
                     'id_sight': sight.id_sights,

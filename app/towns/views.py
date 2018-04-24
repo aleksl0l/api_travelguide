@@ -27,5 +27,9 @@ def api_get_towns():
     if 'id_country' in request.args:
         q.filter(Town.id_country == request.args['id_country'])
     for i, town in enumerate(q):
-        d[i] = {'id_town': town.id_town, 'name': town.name, 'description': town.description}
+        d[i] = {'id_town': town.id_town,
+                'name': town.name,
+                'description': town.description,
+                'url_photo': town.url_photo
+                }
     return jsonify({'message': None, 'data': d, 'status': 'success'})
