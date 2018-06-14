@@ -45,7 +45,7 @@ def api_get_sights():
                     'web_site': sight.web_site,
                     'description': sight.description,
                     'history': sight.history,
-                    'phoneNumber': sight.phonenumber
+                    'phone_number': sight.phonenumber
                     }
         return jsonify({'message': None, 'data': d, 'status': 'success'})
     else:
