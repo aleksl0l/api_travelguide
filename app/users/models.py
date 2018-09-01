@@ -1,4 +1,5 @@
-from sqlalchemy import Column, Integer, String,ForeignKey, Sequence
+from sqlalchemy import Column, Integer, String, ForeignKey, Sequence
+
 from app.app import db
 # from sqlalchemy.orm import relationship
 
@@ -14,5 +15,5 @@ class Users(db.Model):
     public_id = Column(String(36))
     name = Column(String(50), unique=True)
     password = Column(String(100))
-    id_role = Column(Integer, ForeignKey('roles.id_role'))
+    id_role = Column(Integer, ForeignKey('role.id_role'))
     # id_role_rel = relationship('Roles', foreign_keys=[id_role])

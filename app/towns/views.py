@@ -14,10 +14,10 @@ def api_create_town():
             new_town = Town(name=request.args['name'], id_country=2)
             session.add(new_town)
             session.commit()
-        except exc.IntegrityError:
+        except exc.IntegrityError as e:
             session.rollback()
             return jsonify({'message': 'Duplicate value', 'data': None, 'status': 'error'}), 400
-    return jsonify({'message': None, 'data': None, 'status': 'success'}), 200
+    return jsonify({'message': None, 'data': None, 'status': 'success'}), 201
 
 
 @towns.route('/api_v1.0/get_towns', methods=['GET'])
