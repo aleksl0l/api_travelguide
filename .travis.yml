@@ -2,6 +2,7 @@ language: python
 python:
   - "3.6"
 script:
-  - ./app.py
+  - python run.py
 install:
   - pip install -r requirements.txt
+  - alembic upgrade head
