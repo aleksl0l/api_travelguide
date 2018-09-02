@@ -9,7 +9,7 @@ sights = Blueprint('sights', __name__)
 
 
 @sights.route('/api_v1.0/create_sight', methods=['POST'])
-@required_args(['id_town', 'name'])
+# @required_args(['id_town', 'name'])
 def api_create_sights():
     try:
         args = request.args.to_dict(flat=True)
@@ -23,6 +23,7 @@ def api_create_sights():
     except exc.IntegrityError as e:
         session.rollback()
         return jsonify({'message': 'Duplicate value' + e.args[0], 'data': None, 'status': 'error'}), 400
+    return jsonify({'message': None, 'data': None, 'status': 'success'}), 200
 
 
 @sights.route('/api_v1.0/get_sights', methods=['GET'])

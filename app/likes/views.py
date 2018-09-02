@@ -8,8 +8,8 @@ likes = Blueprint('likes', __name__)
 
 
 @likes.route('/api_v1.0/add_like', methods=['POST'])
-@token_required
 @required_args(['id_sight'])
+@token_required
 def api_add_like(current_user):
     try:
         id_sight = request.args['id_sight']
@@ -26,8 +26,8 @@ def api_add_like(current_user):
 
 
 @likes.route('/api_v1.0/del_like', methods=['POST'])
-@token_required
 @required_args(['id_sight'])
+@token_required
 def api_del_like(current_user):
     try:
         id_sight = request.args['id_sight']

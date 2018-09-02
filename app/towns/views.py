@@ -9,12 +9,11 @@ towns = Blueprint('towns', __name__)
 
 
 @towns.route('/api_v1.0/create_town', methods=['POST'])
-@required_args(['name'])
+@required_args(['name', 'id_country'])
 def api_create_town():
-    print(request.args)
     if 'name' in request.args:
         try:
-            new_town = Town(name=request.args['name'], id_country=2)
+            new_town = Town(name=request.args['name'], id_country=request.args['id_country'])
             session.add(new_town)
             session.commit()
         except exc.IntegrityError as e:
