@@ -18,14 +18,14 @@ def api_create_user():
     try:
         new_user = Users(public_id=str(uuid.uuid4()),
                          name=data['name'],
-                         password=hashed_password,
-                         id_role=3)
+                         password=hashed_password,)
+        new_user.id_role = 3
         session.add(new_user)
         session.commit()
-        return jsonify({'message': None, 'data': None, 'status': 'success'})
+        return jsonify({'message': None, 'data': None, 'status': 'success'}), 201
     except Exception as e:
         session.rollback()
-        return jsonify({'message': 'Unexpected error', 'data': None, 'status': 'error'})
+        return jsonify({'message': 'Unexpected error', 'data': None, 'status': 'error'}), 400
 
 
 @users.route('/api_v1.0/get_user', methods=['GET', 'POST'])
@@ -38,9 +38,9 @@ def api_get_user():
                     'name': user.name,
                     'id_role': user.id_role,
                     }
-        return jsonify({'message': None, 'data': d, 'status': 'success'})
+        return jsonify({'message': None, 'data': d, 'status': 'success'}), 200
     except Exception as e:
-        return jsonify({'message': e.args, 'data': d, 'status': 'success'})
+        return jsonify({'message': e.args, 'data': d, 'status': 'error'}), 400
 
 
 @users.route('/api_v1.0/login', methods=['GET', 'POST'])
@@ -50,12 +50,12 @@ def api_login_user():
     user = session.query(Users).filter_by(name=name).first()
     print(name, passw)
     if not user:
-        return jsonify({'message': 'Password or user is invalid', 'data': None, 'status': 'error'})
+        return jsonify({'message': 'Password or user is invalid', 'data': None, 'status': 'error'}), 400
 
     if check_password_hash(user.password, passw):
         token = jwt.encode({'public_id': user.public_id,
                             'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=10)},
                            SECRET_KEY)
-        return jsonify({'message': None, 'data': {'token': token.decode('UTF-8')}, 'status': 'success'})
+        return jsonify({'message': None, 'data': {'token': token.decode('UTF-8')}, 'status': 'success'}), 200
 
-    return jsonify({'message': 'Unexpected error', 'data': None, 'status': 'error'})
+    return jsonify({'message': 'Unexpected error', 'data': None, 'status': 'error'}), 400

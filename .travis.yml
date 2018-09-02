@@ -1,7 +1,14 @@
 language: python
+services:
+  - postgresql
+script:
+  - pytest
 python:
   - "3.6"
-script:
-  - ./app.py
 install:
   - pip install -r requirements.txt
+  - psql -c "CREATE DATABASE travel;" -U postgres
+  - psql -c "CREATE USER travel WITH PASSWORD 'travel';" -U postgres
+  - psql -c "ALTER ROLE travel WITH CREATEDB;" -U postgres
+  - psql -c "GRANT ALL PRIVILEGES ON DATABASE travel to travel;" -U postgres
+  - alembic upgrade head

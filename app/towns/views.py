@@ -6,7 +6,7 @@ from sqlalchemy import exc
 towns = Blueprint('towns', __name__)
 
 
-@towns.route('/api_v1.0/create_town', methods=['GET', 'POST'])
+@towns.route('/api_v1.0/create_town', methods=['POST'])
 def api_create_town():
     print(request.args)
     if 'name' in request.args:
@@ -14,13 +14,13 @@ def api_create_town():
             new_town = Town(name=request.args['name'], id_country=2)
             session.add(new_town)
             session.commit()
-        except exc.IntegrityError:
+        except exc.IntegrityError as e:
             session.rollback()
-            return jsonify({'message': 'Duplicate value', 'data': None, 'status': 'error'})
-    return jsonify({'message': None, 'data': None, 'status': 'success'})
+            return jsonify({'message': 'Duplicate value', 'data': None, 'status': 'error'}), 400
+    return jsonify({'message': None, 'data': None, 'status': 'success'}), 201
 
 
-@towns.route('/api_v1.0/get_towns', methods=['GET', 'POST'])
+@towns.route('/api_v1.0/get_towns', methods=['GET'])
 def api_get_towns():
     d = {}
     q = session.query(Town)
@@ -32,4 +32,4 @@ def api_get_towns():
                 'description': town.description,
                 'url_photo': town.url_photo
                 }
-    return jsonify({'message': None, 'data': d, 'status': 'success'})
+    return jsonify({'message': None, 'data': d, 'status': 'success'}), 200
