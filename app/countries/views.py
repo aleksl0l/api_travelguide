@@ -6,7 +6,7 @@ from sqlalchemy import exc
 countries = Blueprint('countries', __name__)
 
 
-@countries.route('/api_v1.0/create_country', methods=['GET', 'POST'])
+@countries.route('/api_v1.0/create_country', methods=['POST'])
 def api_create_country():
     print(request.args)
     if 'name' in request.args:
@@ -16,11 +16,11 @@ def api_create_country():
             session.commit()
         except exc.IntegrityError:
             session.rollback()
-            return jsonify({'message': 'Duplicate value', 'data': None, 'status': 'error'})
-    return jsonify({'message': None, 'data': None, 'status': 'success'})
+            return jsonify({'message': 'Duplicate value', 'data': None, 'status': 'error'}), 400
+    return jsonify({'message': None, 'data': None, 'status': 'success'}), 200
 
 
-@countries.route('/api_v1.0/get_countries', methods=['GET', 'POST'])
+@countries.route('/api_v1.0/get_countries', methods=['GET'])
 def api_get_countries():
     d = {}
     q = session.query(Country)
@@ -28,4 +28,4 @@ def api_get_countries():
         q = q.filter(Country.id_country == request.args['id_country'])
     for i, country in enumerate(q):
         d[i] = {'id_town': country.id_country, 'name': country.name}
-    return jsonify({'message': None, 'data': d, 'status': 'success'})
+    return jsonify({'message': None, 'data': d, 'status': 'success'}), 200

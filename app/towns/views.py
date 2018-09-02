@@ -1,4 +1,6 @@
 from flask import Blueprint, request, jsonify
+
+from app.baseviews import required_args
 from app.towns.models import Town
 from app.app import session
 from sqlalchemy import exc
@@ -7,6 +9,7 @@ towns = Blueprint('towns', __name__)
 
 
 @towns.route('/api_v1.0/create_town', methods=['POST'])
+@required_args(['name'])
 def api_create_town():
     print(request.args)
     if 'name' in request.args:
@@ -30,6 +33,5 @@ def api_get_towns():
         d[i] = {'id_town': town.id_town,
                 'name': town.name,
                 'description': town.description,
-                'url_photo': town.url_photo
-                }
+                'url_photo': town.url_photo}
     return jsonify({'message': None, 'data': d, 'status': 'success'}), 200

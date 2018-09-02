@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from app.likes.models import Likes
 from app.app import session
-from app.baseviews import token_required
+from app.baseviews import token_required, required_args
 from sqlalchemy import exc
 
 likes = Blueprint('likes', __name__)
@@ -9,6 +9,7 @@ likes = Blueprint('likes', __name__)
 
 @likes.route('/api_v1.0/add_like', methods=['POST'])
 @token_required
+@required_args(['id_sight'])
 def api_add_like(current_user):
     try:
         id_sight = request.args['id_sight']
@@ -26,6 +27,7 @@ def api_add_like(current_user):
 
 @likes.route('/api_v1.0/del_like', methods=['POST'])
 @token_required
+@required_args(['id_sight'])
 def api_del_like(current_user):
     try:
         id_sight = request.args['id_sight']

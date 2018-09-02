@@ -1,4 +1,6 @@
 from flask import request, jsonify
+
+from app.exceptions import InvalidUsage
 from app.users.models import Users
 import jwt
 from functools import wraps
@@ -44,3 +46,18 @@ def admin_token_required(f):
         return f(current_user, *args, **kwargs)
 
     return decorated
+
+
+def required_args(_args):
+    def decorator(func):
+        @wraps(func)
+        def newfn():
+            errors = {}
+            for a in _args:
+                if a not in request.args:
+                    errors[a] = 'This field is required'
+            if errors:
+                raise InvalidUsage(payload={'errors': errors})
+            return func()
+        return newfn
+    return decorator

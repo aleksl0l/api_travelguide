@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 import logging
 import sys
-from flask import Flask
+from flask import Flask, jsonify
 from app.basemodels import db, session
+from app.exceptions import InvalidUsage
 from app.likes.views import likes
 from app.countries.views import countries
 from app.towns.views import towns
@@ -37,3 +38,10 @@ if __name__ == '__main__':
     else:
         host = '127.0.0.1'
     app.run(host=host)
+
+
+@app.errorhandler(InvalidUsage)
+def handle_invalid_usage(error):
+    response = jsonify(error.to_dict())
+    response.status_code = error.status_code
+    return response

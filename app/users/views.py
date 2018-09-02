@@ -1,4 +1,6 @@
 from flask import Blueprint, request, jsonify
+
+from app.baseviews import required_args
 from app.users.models import Users
 from app.app import session
 from app.config import SECRET_KEY
@@ -12,6 +14,7 @@ users = Blueprint('users', __name__)
 
 
 @users.route('/api_v1.0/create_user', methods=['GET', 'POST'])
+@required_args(['name', 'password'])
 def api_create_user():
     data = request.args.to_dict(flat=True)
     hashed_password = generate_password_hash(data['password'], method='sha256')
@@ -28,27 +31,23 @@ def api_create_user():
         return jsonify({'message': 'Unexpected error', 'data': None, 'status': 'error'}), 400
 
 
-@users.route('/api_v1.0/get_user', methods=['GET', 'POST'])
+@users.route('/api_v1.0/get_user', methods=['GET'])
 def api_get_user():
     d = {}
     q = session.query(Users)
-    try:
-        for i, user in enumerate(q):
-            d[i] = {'public_id': user.public_id,
-                    'name': user.name,
-                    'id_role': user.id_role,
-                    }
-        return jsonify({'message': None, 'data': d, 'status': 'success'}), 200
-    except Exception as e:
-        return jsonify({'message': e.args, 'data': d, 'status': 'error'}), 400
+    for i, user in enumerate(q):
+        d[i] = {'public_id': user.public_id,
+                'name': user.name,
+                'id_role': user.id_role,}
+    return jsonify({'message': None, 'data': d, 'status': 'success'}), 200
 
 
 @users.route('/api_v1.0/login', methods=['GET', 'POST'])
+@required_args(['name', 'password'])
 def api_login_user():
     name = request.args['name']
     passw = request.args['password']
     user = session.query(Users).filter_by(name=name).first()
-    print(name, passw)
     if not user:
         return jsonify({'message': 'Password or user is invalid', 'data': None, 'status': 'error'}), 400
 
