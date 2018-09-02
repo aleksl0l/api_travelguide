@@ -6,14 +6,14 @@ from logging.config import fileConfig
 
 from alembic import context
 from sqlalchemy import engine_from_config, pool
-sys.path.append(os.getcwd())
-print(sys.path)
-from app.users.models import Users
-from app.countries.models import Country
-from app.likes.models import Likes
-from app.roles.models import Roles
-from app.sights.models import Sights
-from app.towns.models import Town
+# sys.path.append(os.getcwd())
+# print(sys.path)
+# from app.users.models import Users
+# from app.countries.models import Country
+# from app.likes.models import Likes
+# from app.roles.models import Roles
+# from app.sights.models import Sights
+# from app.towns.models import Town
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -29,12 +29,13 @@ fileConfig(config.config_file_name)
 # target_metadata = mymodel.Base.metadata
 
 
-target_metadata = [Country.metadata,
-                   Town.metadata,
-                   Roles.metadata,
-                   Users.metadata,
-                   Sights.metadata,
-                   Likes.metadata,]
+# target_metadata = [Country.metadata,
+#                    Town.metadata,
+#                    Roles.metadata,
+#                    Users.metadata,
+#                    Sights.metadata,
+#                    Likes.metadata,]
+target_metadata = None
 
 
 # other values from the config, defined by the needs of env.py,
