@@ -1,7 +1,19 @@
 from __future__ import with_statement
+
+import os
+import sys
+from logging.config import fileConfig
+
 from alembic import context
 from sqlalchemy import engine_from_config, pool
-from logging.config import fileConfig
+sys.path.append(os.getcwd())
+print(sys.path)
+from app.users.models import Users
+from app.countries.models import Country
+from app.likes.models import Likes
+from app.roles.models import Roles
+from app.sights.models import Sights
+from app.towns.models import Town
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -15,7 +27,15 @@ fileConfig(config.config_file_name)
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-target_metadata = None
+
+
+target_metadata = [Country.metadata,
+                   Town.metadata,
+                   Roles.metadata,
+                   Users.metadata,
+                   Sights.metadata,
+                   Likes.metadata,]
+
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
@@ -63,6 +83,7 @@ def run_migrations_online():
 
         with context.begin_transaction():
             context.run_migrations()
+
 
 if context.is_offline_mode():
     run_migrations_offline()

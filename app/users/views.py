@@ -18,7 +18,8 @@ def api_create_user():
     try:
         new_user = Users(public_id=str(uuid.uuid4()),
                          name=data['name'],
-                         password=hashed_password)
+                         password=hashed_password,)
+        new_user.id_role = 3
         session.add(new_user)
         session.commit()
         return jsonify({'message': None, 'data': None, 'status': 'success'}), 201

@@ -1,10 +1,6 @@
-import re
-
-import sqlalchemy.types as types
-from sqlalchemy import Column, Integer, String, REAL, Text, ForeignKey, Sequence, ARRAY
-from sqlalchemy.orm import relationship
-
-from app.app import db
+from sqlalchemy import Column, Integer, String, REAL, Text, ForeignKey, ARRAY
+# from sqlalchemy.orm import relationship
+from sqlalchemy.ext.declarative import declarative_base
 
 #
 # class Point(types.UserDefinedType):
@@ -30,20 +26,25 @@ from app.app import db
 #                 long = m.group(2)
 #             return {'lat': lat, 'long': long}
 #         return process
+from app.towns.models import Town
+
+# from app.app import db
+
+Base = declarative_base()
 
 
-class Sights(db.Model):
+class Sights(Base):
     __tablename__ = 'sights'
 
-    id_sights_seq = Sequence('sights_id_sights_seq', metadata=db.metadata)
+    # id_sights_seq = Sequence('sights_id_sights_seq', metadata=Base.metadata)
 
     id_sight = Column(Integer,
-                       server_default=id_sights_seq.next_value(),
-                       primary_key=True)
+                      # server_default=id_sights_seq.next_value(),
+                      primary_key=True)
     name = Column(String(100), nullable=False)
     tag = Column(ARRAY(Text))
     cost = Column(REAL)
-    id_town = Column(Integer, ForeignKey('towns.id_town'))
+    id_town = Column(Integer, ForeignKey(Town.id_town))
     cord_lat = Column(Integer)
     cord_long = Column(Integer)
     rating = Column(REAL)
@@ -53,4 +54,4 @@ class Sights(db.Model):
     description = Column(Text)
     history = Column(Text)
     phone_number = Column(String(20))
-    id_town_rel = relationship('Town', foreign_keys=[id_town])
+    # id_town_rel = relationship('Town', foreign_keys=[id_town])
