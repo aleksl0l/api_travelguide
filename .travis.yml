@@ -1,6 +1,8 @@
 language: python
 services:
   - postgresql
+script:
+  - pytest
 python:
   - "3.6"
 install:
