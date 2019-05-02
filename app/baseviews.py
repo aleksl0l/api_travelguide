@@ -1,11 +1,12 @@
+from functools import wraps
+
+import jwt
 from flask import request, jsonify
 
-from app.exceptions import InvalidUsage
-from app.users.models import Users
-import jwt
-from functools import wraps
 from app.app import session
 from app.config import SECRET_KEY
+from app.exceptions import InvalidUsage
+from app.users.models import Users
 
 
 def token_required(f):

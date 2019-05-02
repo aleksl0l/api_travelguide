@@ -1,6 +1,6 @@
-from app.app import app as application
 import sys
 
+from app.app import app as application
 
 if __name__ == '__main__':
     if len(sys.argv) == 2:

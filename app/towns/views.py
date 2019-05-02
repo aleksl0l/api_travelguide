@@ -1,9 +1,10 @@
 from flask import Blueprint, request, jsonify
+from sqlalchemy import exc
 
+from app.app import session
 from app.baseviews import required_args
 from app.towns.models import Town
-from app.app import session
-from sqlalchemy import exc
+from app.towns.utils import map_town
 
 towns = Blueprint('towns', __name__)
 
@@ -16,7 +17,7 @@ def api_create_town():
             new_town = Town(name=request.args['name'], id_country=request.args['id_country'])
             session.add(new_town)
             session.commit()
-        except exc.IntegrityError as e:
+        except exc.IntegrityError:
             session.rollback()
             return jsonify({'message': 'Duplicate value', 'data': None, 'status': 'error'}), 400
     return jsonify({'message': None, 'data': None, 'status': 'success'}), 201
@@ -24,13 +25,8 @@ def api_create_town():
 
 @towns.route('/api_v1.0/get_towns', methods=['GET'])
 def api_get_towns():
-    d = {}
-    q = session.query(Town)
+    query = session.query(Town)
     if 'id_country' in request.args:
-        q.filter(Town.id_country == request.args['id_country'])
-    for i, town in enumerate(q):
-        d[i] = {'id_town': town.id_town,
-                'name': town.name,
-                'description': town.description,
-                'url_photo': town.url_photo}
-    return jsonify({'message': None, 'data': d, 'status': 'success'}), 200
+        query.filter(Town.id_country == request.args['id_country'])
+    return_data = [map_town(town) for town in query]
+    return jsonify({'message': None, 'data': return_data, 'status': 'success'}), 200
