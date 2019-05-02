@@ -1,6 +1,7 @@
-from app import app
 import sys
+
 from werkzeug.contrib.profiler import ProfilerMiddleware
+
 from app import app
 
 app.config['PROFILE'] = True

@@ -1,10 +1,7 @@
 from sqlalchemy import Column, Integer, String, REAL, Text, ForeignKey, ARRAY
-# from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 
 from app.towns.models import Town
-
-# from app.app import db
 
 Base = declarative_base()
 
@@ -12,11 +9,7 @@ Base = declarative_base()
 class Sights(Base):
     __tablename__ = 'sights'
 
-    # id_sights_seq = Sequence('sights_id_sights_seq', metadata=Base.metadata)
-
-    id_sight = Column(Integer,
-                      # server_default=id_sights_seq.next_value(),
-                      primary_key=True)
+    id_sight = Column(Integer, primary_key=True)
     name = Column(String(100), nullable=False)
     tag = Column(ARRAY(Text))
     cost = Column(REAL)
@@ -30,4 +23,20 @@ class Sights(Base):
     description = Column(Text)
     history = Column(Text)
     phone_number = Column(String(20))
-    # id_town_rel = relationship('Town', foreign_keys=[id_town])
+
+    def serialize(self):
+        return {
+            'id_town': self.id_town,
+            'id_sight': self.id_sight,
+            'name': self.name,
+            'tags': self.tag,
+            'cost': self.cost,
+            'coordinate': [self.cord_lat, self.cord_long],
+            'rating': self.rating,
+            'type': self.type_sight,
+            'photo_urls': self.urls,
+            'web_site': self.web_site,
+            'description': self.description,
+            'history': self.history,
+            'phone_number': self.phone_number,
+        }
